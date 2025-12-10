@@ -18,12 +18,14 @@ async function fileUpload() {
     formData.append('file', file, file.name)
     
     let timeStamps = [];
+    let cred = localStorage.getItem('cred');
+
     addTimeStamp(timeStamps, 'Sent', new Date().toJSON())
     const response = await fetch('/file', {
         method: "POST",
         body: formData,
         headers: {
-            "Authorization": 'Basic ' + btoa('user1:pass1')
+            "Authorization": 'Basic ' + btoa(cred)
         }
     })
     let body = await response.json()
