@@ -1,4 +1,15 @@
-function addTimeStamp(timeStamps = [], name = '', dateJSONString = '') {
+const page = {
+    startButton: document.querySelector('#start'),
+    fileInput: document.querySelector('#FileInput'),
+    statusMessage: document.querySelector('#statusMessage')
+}
+allTimeStamps = [];
+
+function addTimeStamp(timeStamps = [], name = '', dateJSONString = '', size = null) {
+    let timeStamp = {};
+    timeStamp.Event = name;
+    timeStamp.TimeStamp = dateJSONString;
+
     let delta = 0;
     if (timeStamps.length != 0) {
         let lastEntry = timeStamps[timeStamps.length - 1];
@@ -6,14 +17,54 @@ function addTimeStamp(timeStamps = [], name = '', dateJSONString = '') {
         let newDateObj = new Date(dateJSONString);
         delta = newDateObj.getTime() - dateObj.getTime()
     }
-    timeStamps.push({ Event: name, TimeStamp: dateJSONString, Delta: delta })
+    timeStamp.Delta = delta;
+
+
+    if (name == 'Recv'){
+        timeStamp.Size = size/1000000;
+        timeStamp.Speed = (timeStamp.Size/(timeStamp.Delta)) * 1000
+    }
+    timeStamps.push(timeStamp)
+}
+
+function FormatOutput(timeStamps) {
+    let markup = '<table class="table table-sm" id="outputTable">'
+
+    markup += `<thead> 
+    <tr>
+    <th scope="col">Event </th>
+    <th scope="col">TimeStamp (UTC) </th>
+    <th scope="col">Delta (ms) </th>
+    <th scope="col">Size (MB)</th>
+    <th scope="col">Speed (MBps) </th>
+    </tr>
+    </thead>
+    <tbody>`;
+
+    let rows = timeStamps.map(x => {
+        let row = '<tr>';
+        row += '<td>'+ x.Event + '</td>';
+        row += '<td>'+ x.TimeStamp + '</td>';
+        row += '<td>'+ x.Delta + '</td>';
+        row += '<td>'+ (x.Size ? x.Size.toPrecision(4) : '') + '</td>';
+        row += '<td>'+ (x.Speed ? x.Speed.toPrecision(4): '') + '</td>';    ;
+        return row + '</tr>'
+    })
+    markup += rows;
+    markup += '</tbody></table>'
+    return markup;
 }
 
 async function fileUpload() {
-    document.querySelector('#output').value = '';
-    let fileInput = document.querySelector('#FileInput')
-    let file = fileInput.files[0];
 
+    setStatusMessage()
+    let fileInput = page.fileInput
+    let file = fileInput.files[0];
+    if(file == null) {
+        setStatusMessage('no file selected');
+        return;
+    }
+    page.startButton.disabled = true;
     let formData = new FormData();
     formData.append('file', file, file.name)
     
@@ -28,9 +79,33 @@ async function fileUpload() {
             "Authorization": 'Basic ' + btoa(cred)
         }
     })
+
+    if(response.status == 401){
+        setStatusMessage('Invalid Auth, Set auth in localStorage');
+        page.startButton.disabled = false;
+        return;
+    }
     let body = await response.json()
-    addTimeStamp(timeStamps, 'ServerReceived', body.ReceivedUTCTime)
-    addTimeStamp(timeStamps, 'Response', new Date().toJSON())
-    document.querySelector('#output').value = JSON.stringify(timeStamps);
+
+    addTimeStamp(timeStamps, 'Recv', body.ReceivedUTCTime, body.FileSize)
+    addTimeStamp(timeStamps, 'Resp', new Date().toJSON())
+    console.log(timeStamps);
+    allTimeStamps = [...timeStamps,...allTimeStamps];
+
+    let parser = new DOMParser();
+    let domTable = parser.parseFromString(FormatOutput(allTimeStamps), "text/html")
+                            .querySelector('#outputTable')
+                            .outerHTML;
+    document.querySelector('#output').innerHTML = domTable
+    page.startButton.disabled = false;
+    if(document.querySelector('#repeat').checked){
+        setTimeout(() => {
+            fileUpload()
+        },1000);
+    }
+}
+
+function setStatusMessage(statusMessage = ''){
+    page.statusMessage.innerHTML =statusMessage
 
 }

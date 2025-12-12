@@ -22,7 +22,8 @@ app.use('/', indexRouter);
 
 app.post('/file', upload.any(), async (req, res) => {
     res.send(JSON.stringify({
-        ReceivedUTCTime: new Date().toJSON()
+        ReceivedUTCTime: new Date().toJSON(),
+        FileSize: req.files[0].size
     }));
 });
 
