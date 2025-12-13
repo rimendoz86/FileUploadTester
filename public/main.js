@@ -1,7 +1,8 @@
 const page = {
-    startButton: document.querySelector('#start'),
-    fileInput: document.querySelector('#FileInput'),
-    statusMessage: document.querySelector('#statusMessage')
+    startButtonRef: document.querySelector('#start'),
+    fileInputRef: document.querySelector('#FileInput'),
+    statusMessageRef: document.querySelector('#statusMessage'),
+    interval: 1000,
 }
 allTimeStamps = [];
 
@@ -58,13 +59,13 @@ function FormatOutput(timeStamps) {
 async function fileUpload() {
 
     setStatusMessage()
-    let fileInput = page.fileInput
+    let fileInput = page.fileInputRef;
     let file = fileInput.files[0];
     if(file == null) {
         setStatusMessage('no file selected');
         return;
     }
-    page.startButton.disabled = true;
+    page.startButtonRef.disabled = true;
     let formData = new FormData();
     formData.append('file', file, file.name)
     
@@ -82,14 +83,14 @@ async function fileUpload() {
 
     if(response.status == 401){
         setStatusMessage('Invalid Auth, Set auth in localStorage');
-        page.startButton.disabled = false;
+        page.startButtonRef.disabled = false;
         return;
     }
     let body = await response.json()
 
-    addTimeStamp(timeStamps, 'Recv', body.ReceivedUTCTime, body.FileSize)
-    addTimeStamp(timeStamps, 'Resp', new Date().toJSON())
-    console.log(timeStamps);
+    addTimeStamp(timeStamps, 'Recv', body.ReceivedUTCTime, body.FileSize);
+    addTimeStamp(timeStamps, 'Resp', new Date().toJSON());
+
     allTimeStamps = [...timeStamps,...allTimeStamps];
 
     let parser = new DOMParser();
@@ -97,15 +98,15 @@ async function fileUpload() {
                             .querySelector('#outputTable')
                             .outerHTML;
     document.querySelector('#output').innerHTML = domTable
-    page.startButton.disabled = false;
+    page.startButtonRef.disabled = false;
     if(document.querySelector('#repeat').checked){
         setTimeout(() => {
             fileUpload()
-        },1000);
+        }, page.interval);
     }
 }
 
 function setStatusMessage(statusMessage = ''){
-    page.statusMessage.innerHTML =statusMessage
+    page.statusMessageRef.innerHTML = statusMessage
 
 }
