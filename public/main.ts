@@ -1,3 +1,8 @@
+interface AppStorage {
+    cred: string;
+    interval: number,
+    numsOfStream: number
+}
 interface TimeStamp {
     Event: string,
     TimeStamp: string,
@@ -23,14 +28,11 @@ class App {
     public testRunning = false;
     public allTimeStamps = <TimeStamp[]>[]
     get interval(){return parseInt(this.page.intervalRef!.value)}
-
+    get streams(){return parseInt(this.page.streamsInputRef.value)}
     constructor(){
         this.page.startButtonRef.addEventListener('click', () => {this.startTest()})
         this.page.stopButtonRef.addEventListener('click', ()=>{this.stopTest()})
-        let cred = localStorage.getItem('cred');
-        if(cred){
-            this.page.credInputRef.value = cred;
-        }
+        this.getLocalStorageValues();
     }
 
     public addTimeStamp(timeStamps: TimeStamp[], name: string, dateJSONString: string, size?: number) {
@@ -63,10 +65,7 @@ class App {
         for (let index = 0; index < numOfStream; index++) {
             this.fileUpload();
         }
-        let cred = this.page.credInputRef.value;
-        if(cred){
-            localStorage.setItem('cred',cred);
-        }
+        this.setLocalStorageValues();
 
     }
 
@@ -185,6 +184,26 @@ class App {
     public setStatusMessage(statusMessage = '') {
         this.page.statusMessageRef.innerHTML = statusMessage
 
+    }
+
+
+    setLocalStorageValues(){
+        let vals: AppStorage  = {
+            cred: this.page.credInputRef.value,
+            interval: this.interval,
+            numsOfStream: this.streams
+        }
+        let valsJSON = JSON.stringify(vals);
+        localStorage.setItem('appStorage', valsJSON);
+    }
+    getLocalStorageValues(){
+        let appStorageJSON = localStorage.getItem('appStorage');
+        if(!appStorageJSON) return;
+        let appStorage:AppStorage = JSON.parse(appStorageJSON);
+
+        this.page.credInputRef.value = appStorage.cred;
+        this.page.intervalRef.value = appStorage.interval.toString(),
+        this.page.streamsInputRef.value = appStorage.numsOfStream.toString()
     }
 }
 
