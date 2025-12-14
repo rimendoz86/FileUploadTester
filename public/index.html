@@ -10,32 +10,54 @@
   <div class="container my-2">
     <div class="row">
       <div class="col-md-3">
-        <label for="file" class="form-label"></label>
-        <input class="form-control form-control-sm" id="FileInput" type="file" name="file">
-      </div>
-      <div class="col-md-3 pt-2">
-        <div class="form-check">
-          <input class="form-check-input" name="repeat" type="checkbox" value="" id="repeat">
-          <label class="form-check-label" for="repeat">
-            Repeat every 1s
-          </label>
+        <div>Options</div>
+        <div class="mb-2">
+          <label for="file" class="form-label"></label>
+          <input class="form-control form-control-sm" id="FileInput" type="file" name="file">
+        </div>
+        <div class="mb-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"># of streams</span>
+            <input id="streams" type="number" class="form-control" value="1">
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">interval (ms)</span>
+            <input id="interval" type="number" class="form-control" value="1000">
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">credentials</span>
+            <input id="cred" type="password" class="form-control" value="">
+          </div>
+        </div>
+        <!-- <div>
+          <div class="form-check">
+            <input class="form-check-input" name="repeat" type="checkbox" value="" id="repeat">
+            <label class="form-check-label" for="repeat">
+              Repeat every 1s
+            </label>
+        </div> -->
+        <div>
+          <button class="btn btn-sm btn-secondary" id="start"> Start </button>
+          <button class="btn btn-sm btn-secondary" id="stop" disabled> Stop </button>
+        </div>
+        <div>
+          <span id="statusMessage"></span>
         </div>
       </div>
-      <div class="col-md-3">
-        <button class="btn btn-sm btn-secondary" id="start" onclick="fileUpload()"> Start </button>
-      </div>
-      <div class="col-md-3">
-        <span id="statusMessage"></span>
-      </div>
+    <div class="col-md-9">
+      <div>Output</div>
+      <div name="output" id="output"></div>
     </div>
-    <div class="row">
-      <div class="col-md-12">
-        <div></div>
-        <div name="output" id="output"></div>
-        <script src="main.js"></script>
-      </div>
-    </div>
-  </div>
 
+    </div>
+
+  </div>
+  </div>
+  <script src="main.js" type="module"></script>
+</body>
 
 </html>
