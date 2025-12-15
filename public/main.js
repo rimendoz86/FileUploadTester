@@ -15,6 +15,7 @@ class App {
     allTimeStamps = [];
     get interval() { return parseInt(this.page.intervalRef.value); }
     get streams() { return parseInt(this.page.streamsInputRef.value); }
+    get cred() { return this.page.credInputRef.value; }
     constructor() {
         this.page.startButtonRef.addEventListener('click', () => { this.startTest(); });
         this.page.stopButtonRef.addEventListener('click', () => { this.stopTest(); });
@@ -42,7 +43,7 @@ class App {
         this.testRunning = true;
         this.page.startButtonRef.disabled = true;
         this.page.stopButtonRef.disabled = false;
-        let numOfStream = parseInt(this.page.streamsInputRef.value);
+        let numOfStream = this.streams;
         for (let index = 0; index < numOfStream; index++) {
             this.fileUpload();
         }
@@ -108,8 +109,7 @@ class App {
     }
     async fileUpload() {
         this.setStatusMessage();
-        let fileInput = this.page.fileInputRef;
-        let file = fileInput.files[0];
+        let file = this.page.fileInputRef.files[0];
         if (file == null) {
             this.setStatusMessage('no file selected');
             this.stopTest();
@@ -117,14 +117,15 @@ class App {
         }
         let formData = new FormData();
         formData.append('file', file, file.name);
+        let timeStampNew = {};
         let timeStamps = [];
-        let cred = this.page.credInputRef.value;
-        this.addTimeStamp(timeStamps, 'Sent', new Date().toJSON());
+        timeStampNew.Sent = new Date().toJSON();
+        //this.addTimeStamp(timeStamps, 'Sent', new Date().toJSON())
         const response = await fetch('/file', {
             method: "POST",
             body: formData,
             headers: {
-                "Authorization": 'Basic ' + btoa(cred)
+                "Authorization": 'Basic ' + btoa(this.cred)
             }
         });
         if (response.status == 401) {
@@ -133,9 +134,10 @@ class App {
             return;
         }
         let body = await response.json();
-        this.addTimeStamp(timeStamps, 'Recv', body.ReceivedUTCTime, body.FileSize);
-        this.addTimeStamp(timeStamps, 'Resp', new Date().toJSON());
-        this.allTimeStamps = [...timeStamps, ...this.allTimeStamps];
+        timeStampNew.Received = body.ReceivedUTCTime;
+        timeStampNew.Size = body.FileSize;
+        timeStampNew.Response = new Date().toJSON();
+        this.allTimeStamps = [...timeStampNew, ...this.allTimeStamps];
         let parser = new DOMParser();
         let domTable = parser.parseFromString(this.FormatOutput(this.allTimeStamps), "text/html")
             .querySelector('#outputTable')
@@ -152,7 +154,7 @@ class App {
     }
     setLocalStorageValues() {
         let vals = {
-            cred: this.page.credInputRef.value,
+            cred: this.cred,
             interval: this.interval,
             numsOfStream: this.streams
         };
