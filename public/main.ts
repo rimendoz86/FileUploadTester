@@ -190,5 +190,19 @@ class App {
         this.page.streamsInputRef.value = appStorage.numsOfStream.toString()
     }
 }
-
+/*
+for later to build a file on command instead of providing a specific file.
+var sumstring = ''
+for (let i = 0; i<1024; i++){
+    sumstring+=String.fromCharCode( parseInt(Math.random()*128))
+}
+console.log(sumstring.length);
+let file = new Blob([sumstring])
+let href = URL.createObjectURL(file);
+let a = document.createElement('a');
+a.download = 'file.txt';
+a.href = href;
+a.click()
+delete a;
+*/
 new App()
