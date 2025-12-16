@@ -62,12 +62,12 @@ class App {
         let markup = '<table class="table table-sm" id="outputTable">';
         markup += `<thead> 
     <tr>
-    <th scope="col">Sent </th>
-    <th scope="col">Received (UTC) </th>
-    <th scope="col">Response (ms) </th>
-    <th scope="col">RTT (ms) </th>
+    <th scope="col">Sent</th>
+    <th scope="col">Received (UTC)</th>
+    <th scope="col">Response (ms)</th>
+    <th scope="col">RTT (ms)</th>
     <th scope="col">Size (MB)</th>
-    <th scope="col">~Speed (MBps) </th>
+    <th scope="col">~Speed (MBps)</th>
     </tr>
     </thead>
     <tbody>`;
