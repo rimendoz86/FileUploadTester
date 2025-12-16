@@ -10,7 +10,6 @@ class Page {
     testFileSizeRef = document.querySelector('#testFileSize');
     createTestFileButtonRef = document.querySelector('#createTestFile');
 }
-;
 class App {
     page = new Page();
     testRunning = false;
@@ -24,24 +23,6 @@ class App {
         this.page.stopButtonRef.addEventListener('click', () => { this.stopTest(); });
         this.page.createTestFileButtonRef.addEventListener('click', () => { this.createTestFile(); });
         this.getLocalStorageValues();
-    }
-    addTimeStamp(timeStamps, name, dateJSONString, size) {
-        let timeStamp = {};
-        timeStamp.Event = name;
-        timeStamp.TimeStamp = dateJSONString;
-        let delta = 0;
-        let lastEntry = timeStamps[timeStamps.length - 1];
-        if (lastEntry) {
-            let dateObj = new Date(lastEntry.TimeStamp);
-            let newDateObj = new Date(dateJSONString);
-            delta = newDateObj.getTime() - dateObj.getTime();
-        }
-        timeStamp.Delta = delta;
-        if (name == 'Recv' && size) {
-            timeStamp.Size = size / 1000000;
-            timeStamp.Speed = (timeStamp.Size / (timeStamp.Delta)) * 1000;
-        }
-        timeStamps.push(timeStamp);
     }
     startTest() {
         this.testRunning = true;
@@ -153,17 +134,16 @@ class App {
     }
     createTestFile() {
         let fileSize = Math.trunc(this.testFileSize * 1024 * 1024);
-        let sumstring = '';
+        let fileContent = '';
         for (let i = 0; i < fileSize; i++) {
-            sumstring += String.fromCharCode(Math.trunc(Math.random() * 128));
+            fileContent += String.fromCharCode(Math.trunc(Math.random() * 128));
         }
-        let file = new Blob([sumstring], { type: "application/text" });
-        let href = URL.createObjectURL(file);
-        let a = document.createElement('a');
-        a.download = `TestFile(${this.testFileSize}MB).txt`;
-        a.href = href;
-        a.click();
-        a.remove();
+        let fileBlob = new Blob([fileContent], { type: "application/text" });
+        let aElem = document.createElement('a');
+        aElem.download = `TestFile(${this.testFileSize}MB).txt`;
+        aElem.href = URL.createObjectURL(fileBlob);
+        aElem.click();
+        aElem.remove();
     }
 }
 new App();

@@ -3,14 +3,8 @@ interface AppStorage {
     interval: number;
     numsOfStream: number;
 }
+
 interface TimeStamp {
-    Event: string;
-    TimeStamp: string;
-    Delta: number;
-    Size: number;
-    Speed: number;
-}
-interface TimeStampNew {
     Sent: string;
     Received: string;
     Response: string;
@@ -30,13 +24,13 @@ class Page {
     stopButtonRef = <HTMLButtonElement>document.querySelector('#stop');
     testFileSizeRef = <HTMLInputElement>document.querySelector('#testFileSize');
     createTestFileButtonRef = <HTMLButtonElement>document.querySelector('#createTestFile');
-};
+}
 
 
 class App {
     readonly page = new Page();
     public testRunning = false;
-    public allTimeStamps = <TimeStampNew[]>[]
+    public allTimeStamps = <TimeStamp[]>[]
     get interval(){return parseInt(this.page.intervalRef!.value)}
     get streams(){return parseInt(this.page.streamsInputRef.value)}
     get testFileSize(){return parseFloat(this.page.testFileSizeRef.value)}
@@ -46,28 +40,6 @@ class App {
         this.page.stopButtonRef.addEventListener('click', ()=>{this.stopTest()})
         this.page.createTestFileButtonRef.addEventListener('click', () => {this.createTestFile()})
         this.getLocalStorageValues();
-    }
-
-    public addTimeStamp(timeStamps: TimeStamp[], name: string, dateJSONString: string, size?: number) {
-        let timeStamp: Partial<TimeStamp> = {};
-        timeStamp.Event = name;
-        timeStamp.TimeStamp = dateJSONString;
-
-        let delta = 0;
-        let lastEntry = timeStamps[timeStamps.length - 1];
-        if (lastEntry) {
-            let dateObj = new Date(lastEntry.TimeStamp);
-            let newDateObj = new Date(dateJSONString);
-            delta = newDateObj.getTime() - dateObj.getTime()
-        }
-        timeStamp.Delta = delta;
-
-
-        if (name == 'Recv' && size) {
-            timeStamp.Size = size / 1000000;
-            timeStamp.Speed = (timeStamp.Size / (timeStamp.Delta)) * 1000
-        }
-        timeStamps.push(<TimeStamp>timeStamp)
     }
 
     public startTest() {
@@ -88,7 +60,7 @@ class App {
         this.page.stopButtonRef.disabled = true;
     }
 
-    public FormatOutput(timeStamps: TimeStampNew[]) {
+    public FormatOutput(timeStamps: TimeStamp[]) {
         let markup = '<table class="table table-sm" id="outputTable">'
 
         markup += `<thead> 
@@ -129,7 +101,7 @@ class App {
         let formData = new FormData();
         formData.append('file', file, file.name)
 
-        let timeStamp: Partial<TimeStampNew> = {};
+        let timeStamp: Partial<TimeStamp> = {};
         timeStamp.Sent = new Date().toJSON();
         const response = await fetch('/file', {
             method: "POST",
@@ -154,7 +126,7 @@ class App {
         timeStamp.RoundTripTime = newDateObj.getTime() - dateObj.getTime()
         timeStamp.Speed = (timeStamp.Size / (timeStamp.RoundTripTime)) * 1000
 
-        this.allTimeStamps = [<TimeStampNew>timeStamp, ...this.allTimeStamps];
+        this.allTimeStamps = [<TimeStamp>timeStamp, ...this.allTimeStamps];
 
         let parser = new DOMParser();
         let domTable = parser.parseFromString(this.FormatOutput(this.allTimeStamps), "text/html")!
@@ -195,17 +167,16 @@ class App {
 
     createTestFile() {
         let fileSize = Math.trunc(this.testFileSize * 1024 * 1024);
-        let sumstring = ''
+        let fileContent = ''
         for (let i = 0; i < fileSize; i++) {
-            sumstring += String.fromCharCode(Math.trunc(Math.random() * 128))
+            fileContent += String.fromCharCode(Math.trunc(Math.random() * 128))
         }
-        let file = new Blob([sumstring], { type: "application/text" });
-        let href = URL.createObjectURL(file);
-        let a = document.createElement('a');
-        a.download = `TestFile(${this.testFileSize}MB).txt`;
-        a.href = href;
-        a.click()
-        a.remove()
+        let fileBlob = new Blob([fileContent], { type: "application/text" });
+        let aElem = document.createElement('a');
+        aElem.download = `TestFile(${this.testFileSize}MB).txt`;
+        aElem.href = URL.createObjectURL(fileBlob);
+        aElem.click()
+        aElem.remove()
     }
 }
 
