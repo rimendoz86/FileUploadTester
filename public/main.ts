@@ -28,6 +28,8 @@ class Page {
     statusMessageRef = <HTMLElement>document.querySelector('#statusMessage');
     startButtonRef = <HTMLButtonElement>document.querySelector('#start');
     stopButtonRef = <HTMLButtonElement>document.querySelector('#stop');
+    testFileSizeRef = <HTMLInputElement>document.querySelector('#testFileSize');
+    createTestFileButtonRef = <HTMLButtonElement>document.querySelector('#createTestFile');
 };
 
 
@@ -37,10 +39,12 @@ class App {
     public allTimeStamps = <TimeStampNew[]>[]
     get interval(){return parseInt(this.page.intervalRef!.value)}
     get streams(){return parseInt(this.page.streamsInputRef.value)}
+    get testFileSize(){return parseFloat(this.page.testFileSizeRef.value)}
     get cred(){return this.page.credInputRef.value}
     constructor(){
         this.page.startButtonRef.addEventListener('click', () => {this.startTest()})
         this.page.stopButtonRef.addEventListener('click', ()=>{this.stopTest()})
+        this.page.createTestFileButtonRef.addEventListener('click', () => {this.createTestFile()})
         this.getLocalStorageValues();
     }
 
@@ -89,12 +93,12 @@ class App {
 
         markup += `<thead> 
     <tr>
-    <th scope="col">Sent </th>
-    <th scope="col">Received (UTC) </th>
-    <th scope="col">Response (ms) </th>
-    <th scope="col">RoundTripTime (ms) </th>
+    <th scope="col">Sent</th>
+    <th scope="col">Received (UTC)</th>
+    <th scope="col">Response (ms)</th>
+    <th scope="col">RTT (ms)</th>
     <th scope="col">Size (MB)</th>
-    <th scope="col">~Speed (MBps) </th>
+    <th scope="col">~Speed (MBps)</th>
     </tr>
     </thead>
     <tbody>`;
@@ -125,9 +129,8 @@ class App {
         let formData = new FormData();
         formData.append('file', file, file.name)
 
-        let timeStampNew: Partial<TimeStampNew> = {};
-        timeStampNew.Sent = new Date().toJSON();
-        //this.addTimeStamp(timeStamps, 'Sent', new Date().toJSON())
+        let timeStamp: Partial<TimeStampNew> = {};
+        timeStamp.Sent = new Date().toJSON();
         const response = await fetch('/file', {
             method: "POST",
             body: formData,
@@ -142,16 +145,16 @@ class App {
             return;
         }
         let body = await response.json()
-        timeStampNew.Received = body.ReceivedUTCTime;
-        timeStampNew.Size = body.FileSize / 1000000
-        timeStampNew.Response = new Date().toJSON();
-        let dateObj = new Date(timeStampNew.Sent);
-        let newDateObj = new Date(timeStampNew.Response);
-        timeStampNew.RoundTripTime = newDateObj.getTime() - dateObj.getTime()
-        timeStampNew.Speed = (timeStampNew.Size / (timeStampNew.RoundTripTime)) * 1000
+        timeStamp.Response = new Date().toJSON();
+        timeStamp.Received = body.ReceivedUTCTime;
+        timeStamp.Size = body.FileSize / 1000000
 
-        this.allTimeStamps = [<TimeStampNew>timeStampNew, ...this.allTimeStamps];
+        let dateObj = new Date(timeStamp.Sent);
+        let newDateObj = new Date(timeStamp.Response);
+        timeStamp.RoundTripTime = newDateObj.getTime() - dateObj.getTime()
+        timeStamp.Speed = (timeStamp.Size / (timeStamp.RoundTripTime)) * 1000
 
+        this.allTimeStamps = [<TimeStampNew>timeStamp, ...this.allTimeStamps];
 
         let parser = new DOMParser();
         let domTable = parser.parseFromString(this.FormatOutput(this.allTimeStamps), "text/html")!
@@ -168,7 +171,6 @@ class App {
 
     public setStatusMessage(statusMessage = '') {
         this.page.statusMessageRef.innerHTML = statusMessage
-
     }
 
     setLocalStorageValues(){
@@ -180,6 +182,7 @@ class App {
         let valsJSON = JSON.stringify(vals);
         localStorage.setItem('appStorage', valsJSON);
     }
+
     getLocalStorageValues(){
         let appStorageJSON = localStorage.getItem('appStorage');
         if(!appStorageJSON) return;
@@ -189,20 +192,21 @@ class App {
         this.page.intervalRef.value = appStorage.interval.toString(),
         this.page.streamsInputRef.value = appStorage.numsOfStream.toString()
     }
+
+    createTestFile() {
+        let fileSize = Math.trunc(this.testFileSize * 1024 * 1024);
+        let sumstring = ''
+        for (let i = 0; i < fileSize; i++) {
+            sumstring += String.fromCharCode(Math.trunc(Math.random() * 128))
+        }
+        let file = new Blob([sumstring], { type: "application/text" });
+        let href = URL.createObjectURL(file);
+        let a = document.createElement('a');
+        a.download = `TestFile(${this.testFileSize}MB).txt`;
+        a.href = href;
+        a.click()
+        a.remove()
+    }
 }
-/*
-for later to build a file on command instead of providing a specific file.
-var sumstring = ''
-for (let i = 0; i<1024; i++){
-    sumstring+=String.fromCharCode( parseInt(Math.random()*128))
-}
-console.log(sumstring.length);
-let file = new Blob([sumstring])
-let href = URL.createObjectURL(file);
-let a = document.createElement('a');
-a.download = 'file.txt';
-a.href = href;
-a.click()
-delete a;
-*/
+
 new App()
