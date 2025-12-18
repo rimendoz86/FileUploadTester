@@ -5,6 +5,7 @@ var logger = require('morgan');
 const multer = require('multer')
 const upload = multer()
 const basicAuth = require('express-basic-auth')
+const appSettings = require('./appConfig.json');
 
 var indexRouter = require('./routes/index');
 
@@ -16,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(basicAuth({
-    users: {'user1':"pass1"}
+    users: {[appSettings.user]:appSettings.pass}
 }))
 app.use('/', indexRouter);
 
