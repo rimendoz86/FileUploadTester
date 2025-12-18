@@ -3,7 +3,7 @@ const fs = require('node:fs')
 
 var appConfigFile = fs.existsSync('./appConfig.json');
 if (!appConfigFile) {
-  const appSettings = `{\n\t"user":"",\n\t"pass": ""\n}`
+  const appSettings = `{\n\t"user": "",\n\t"pass": ""\n}`
   fs.writeFileSync('./appConfig.json', appSettings, { encoding: 'utf-8' }, () => { });
   console.log('appConfig.json was created, please update with credentials and run again.');
   process.exit(0);
