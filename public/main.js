@@ -94,7 +94,7 @@ class App {
         let body = await response.json();
         timeStamp.Response = new Date().toJSON();
         timeStamp.Received = body.ReceivedUTCTime;
-        timeStamp.Size = body.FileSize / 1000000;
+        timeStamp.Size = body.FileSize / 1048576;
         let dateObj = new Date(timeStamp.Sent);
         let newDateObj = new Date(timeStamp.Response);
         timeStamp.RoundTripTime = newDateObj.getTime() - dateObj.getTime();
@@ -133,7 +133,7 @@ class App {
             this.page.streamsInputRef.value = appStorage.numsOfStream.toString();
     }
     createTestFile() {
-        let fileSize = Math.trunc(this.testFileSize * 1024 * 1024);
+        let fileSize = Math.trunc(this.testFileSize * 1048576);
         let fileContent = '';
         for (let i = 0; i < fileSize; i++) {
             fileContent += String.fromCharCode(Math.trunc(Math.random() * 128));
