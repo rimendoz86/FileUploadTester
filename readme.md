@@ -21,12 +21,12 @@ This app can be deployed to a server of your choice with minimal dependancies (n
 - Upload that file using many streams.
 - See the timestamps at each point of each upload, the round trip time, and the estimated transfer speed.
 
-## Additional Notes
-This tool was designed to turn on, test, and then turn off. Basic auth is not foolproof. If you choose to keep this continually running, please follow all best practices for hosting a node app for production
-
 ## TODOS
 - [ ] Allow user to change port via appSettings.json
 - [ ] Display a running summary of avg throughput and files per minute.
 - [ ] Instead of always displaying all results, show the last stream count. ie. if the usere sets the streams to 10, only the last 10 results will show. This is because the avg throughput and files per minute will be more useful anyways.
 
-this is a small project, and was made out of necessity. After the two todo's above I will likely not do much more unless this magically gets discovered and people need other features. 
+## Additional Notes
+This tool was designed to turn on, test, and then turn off. Basic auth is not foolproof. If you choose to keep this continually running, please follow all best practices for hosting a node app for production.
+
+this is a small project, and was made out of necessity. After the todo's above I will likely not do much more unless this magically gets discovered and people need other features. 
