@@ -1,5 +1,5 @@
 # File Upload Tester
-This app can be deployed to a server of your choice with minimal dependancies (npde/npm) so that you can test upload speed or network conditions. 
+This app can be deployed to a server of your choice with minimal dependancies (npde/npm) so that you or users can test upload speed or network conditions from a web client via the browser to the server.
 
 ## User Stories
 - I am an app developer and need to test the upload throughput from client to server via http. 
