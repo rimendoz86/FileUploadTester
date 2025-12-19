@@ -27,6 +27,6 @@ This tool was designed to turn on, test, and then turn off. Basic auth is not fo
 ## TODOS
 - [ ] Allow user to change port via appSettings.json
 - [ ] Display a running summary of avg throughput and files per minute.
-- [ ] Instead of always displaying all results, show the last stream count. ie. if the usere sets the streams to 10, only the last 10 results will show. This is because the ang throughput and files per minute will be more useful anyways.
+- [ ] Instead of always displaying all results, show the last stream count. ie. if the usere sets the streams to 10, only the last 10 results will show. This is because the avg throughput and files per minute will be more useful anyways.
 
 this is a small project, and was made out of necessity. After the two todo's above I will likely not do much more unless this magically gets discovered and people need other features. 
